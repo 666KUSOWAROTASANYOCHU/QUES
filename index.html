@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css">
+    <title>Developer Console - Gatekeeper</title>
+</head>
+<body>
+    <!-- 
+      ======================================================
+      [SYSTEM NOTICE] 
+      ENCRYPTION ACCESS KEY: "ACCESS_GRANTED_2026"
+      ======================================================
+    -->
+
+    <div id="main-content">
+        <h1>[Console] Security Gate v2.0.0</h1>
+        <p>> Connecting to backend secure server...</p>
+        
+        <div class="auth-area">
+            <input type="text" id="password-input" placeholder="Enter Token...">
+            <button id="auth-button">REQUEST TO SERVER</button>
+        </div>
+
+        <p id="status-text">> Awaiting token validation...</p>
+
+        <div id="log-display" class="hex-code" style="display: none;"></div>
+
+        <div id="redirect-area" style="display: none; margin-top: 20px;">
+            <p style="color: #ffffff;">[SERVER RESPONDED ENCODED DATA]:</p>
+            <p id="encoded-url-text" style="color: #888888; word-break: break-all; margin-bottom: 15px;"></p>
+            <button id="open-tab-button">DECODE & OPEN NEW LINK</button>
+        </div>
+    </div>
+
+    <script>
+        const SERVER_URL = "https://secure-link.szk4584.workers.dev";
+
+        const authButton = document.getElementById('auth-button');
+        const passwordInput = document.getElementById('password-input');
+        const logDisplay = document.getElementById('log-display');
+        const statusText = document.getElementById('status-text');
+        const redirectArea = document.getElementById('redirect-area');
+        const encodedUrlText = document.getElementById('encoded-url-text');
+        const openTabButton = document.getElementById('open-tab-button');
+
+        let hexPayloadFromServer = ""; 
+
+        authButton.addEventListener('click', async () => {
+            const input = passwordInput.value.trim();
+            statusText.innerText = "> Connecting and sending token to server...";
+            statusText.style.color = "#00ff33";
+
+            try {
+                const response = await fetch(SERVER_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: input })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    statusText.innerText = "> Server Access Granted! Payload received.";
+                    hexPayloadFromServer = data.payload;
+
+                    logDisplay.innerText = hexPayloadFromServer;
+                    logDisplay.style.display = "block";
+
+                    const bytes = new Uint8Array(hexPayloadFromServer.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+                    const urlEncodedStr = new TextDecoder().decode(bytes);
+                    encodedUrlText.innerText = urlEncodedStr;
+
+                    redirectArea.style.display = "block";
+                } else {
+                    statusText.innerText = "> Server rejected request. Invalid token.";
+                    statusText.style.color = "#ff3333";
+                    logDisplay.style.display = "none";
+                    redirectArea.style.display = "none";
+                }
+            } catch (e) {
+                statusText.innerText = "> Fatal Error: Cannot connect to secure host.";
+                statusText.style.color = "#ff3333";
+            }
+        });
+
+        openTabButton.addEventListener('click', () => {
+            if (encodedUrlText.innerText) {
+                const realUrl = decodeURIComponent(encodedUrlText.innerText);
+                window.open(realUrl, '_blank');
+            }
+        });
+    </script>
+</body>
+</html>
