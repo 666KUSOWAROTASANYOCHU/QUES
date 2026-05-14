@@ -33,8 +33,18 @@
         </div>
     </div>
 
+    <button id="hint-button">?</button>
+
+    <div id="hint-modal">
+        <div class="modal-content">
+            <h2>[SYSTEM HINT]</h2>
+            <p>F12キーか、右クリックの「検証」からソースコードを開いてみましょう。</p>
+            <button id="close-button">Close</button>
+        </div>
+    </div>
+
     <script>
-        const SERVER_URL = "https://secure-link.szk4584.workers.dev";
+        const SERVER_URL = "https://secure-link.szk4584.workers.dev"; 
 
         const authButton = document.getElementById('auth-button');
         const passwordInput = document.getElementById('password-input');
@@ -89,6 +99,21 @@
                 const realUrl = decodeURIComponent(encodedUrlText.innerText);
                 window.open(realUrl, '_blank');
             }
+        });
+
+        const hintButton = document.getElementById('hint-button');
+        const closeButton = document.getElementById('close-button');
+        const hintModal = document.getElementById('hint-modal');
+        const mainContent = document.getElementById('main-content');
+
+        hintButton.addEventListener('click', () => {
+            hintModal.classList.add('show');
+            mainContent.classList.add('blur-effect');
+        });
+
+        closeButton.addEventListener('click', () => {
+            hintModal.classList.remove('show');
+            mainContent.classList.remove('blur-effect');
         });
     </script>
 </body>
