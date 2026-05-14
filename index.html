@@ -14,7 +14,7 @@
     -->
 
     <div id="main-content">
-        <h1>[Console] Security Gate v2.0.0</h1>
+        <h1>[Console] Security Gate v2.1.0</h1>
         <p>> Connecting to backend secure server...</p>
         
         <div class="auth-area">
@@ -36,10 +36,38 @@
     <button id="hint-button">?</button>
 
     <div id="hint-modal">
-        <div class="modal-content">
-            <h2>[SYSTEM HINT]</h2>
-            <p>F12キーか、右クリックの「検証」からソースコードを開いてみましょう。</p>
-            <button id="close-button">Close</button>
+        <div class="modal-content" style="max-width: 85%; max-height: 80vh; overflow-y: auto; text-align: left;">
+            <h2 id="os-detected-title" style="color: #00ff33; text-align: center;">[SYSTEM HINT]</h2>
+            <p style="color: #ffffff; border-bottom: 1px solid #444444; padding-bottom: 5px; text-align: center;">
+                この画面の「ソースコード」を除いてみましょう。パスワードの入力はサーバーメインではなくjavascriptメインのため、ソースコード内部のパスワードチェックするコードの部分からパスワードを入手することができます。
+            </p>
+            
+            <div id="hint-android" style="display: none;">
+                <p style="margin: 5px 0 0 0; font-weight: bold; color: #569cd6;">■ Android (Chrome) の裏ワザ</p>
+                <p style="font-size: 14px; margin: 5px 0 10px 0; line-height: 1.5;">
+                    アドレスバーに表示されているURLの「先頭」に、手入力で <span style="color: #ff3333; font-family: monospace;">view-source:</span> という文字を付け足してページを再読み込みしてみるとソースコードを表示できます。<br>
+                    <span style="color: #888888; font-size: 12px;">（例: view-source:https://...）</span>
+                </p>
+            </div>
+
+            <div id="hint-ios" style="display: none;">
+                <p style="margin: 5px 0 0 0; font-weight: bold; color: #569cd6;">■ iOS / iPadOS (Safari) の裏ワザ</p>
+                <p style="font-size: 14px; margin: 5px 0 10px 0; line-height: 1.5;">
+                    画面下部（iPadは右上）の「共有ボタン（上矢印のマーク）」をタップし、「ファイルに保存」を選択してiCloud等に一度保存しましょう。<br>
+                    その後、標準の「ファイルアプリ」からそのファイルを開けば、テキストとしてソースコードを覗くことができます。
+                </p>
+            </div>
+
+            <div id="hint-pc" style="display: none;">
+                <p style="margin: 5px 0 0 0; font-weight: bold; color: #569cd6;">■ PC (Windows / Mac) の操作</p>
+                <p style="font-size: 14px; margin: 5px 0 10px 0; line-height: 1.5;">
+                    キーボードの一番上にある <span style="color: #ff3333; font-family: monospace;">F12キー</span> を押すか、画面の何も無いところを右クリックして「検証」または「ページのソースを表示」を選択すると、ソースコードを表示できます。
+                </p>
+            </div>
+
+            <div style="text-align: center; margin-top: 15px;">
+                <button id="close-button">Close Console</button>
+            </div>
         </div>
     </div>
 
@@ -105,8 +133,26 @@
         const closeButton = document.getElementById('close-button');
         const hintModal = document.getElementById('hint-modal');
         const mainContent = document.getElementById('main-content');
+        const osTitle = document.getElementById('os-detected-title');
+
+        const ua = navigator.userAgent.toLowerCase();
 
         hintButton.addEventListener('click', () => {
+            document.getElementById('hint-android').style.display = "none";
+            document.getElementById('hint-ios').style.display = "none";
+            document.getElementById('hint-pc').style.display = "none";
+
+            if (ua.indexOf('android') !== -1) {
+                osTitle.innerText = "[ANDROID DETECTED]";
+                document.getElementById('hint-android').style.display = "block";
+            } else if (ua.indexOf('iphone') !== -1 || ua.indexOf('ipad') !== -1 || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) {
+                osTitle.innerText = "[iOS/iPadOS DETECTED]";
+                document.getElementById('hint-ios').style.display = "block";
+            } else {
+                osTitle.innerText = "[DESKTOP PC DETECTED]";
+                document.getElementById('hint-pc').style.display = "block";
+            }
+
             hintModal.classList.add('show');
             mainContent.classList.add('blur-effect');
         });
